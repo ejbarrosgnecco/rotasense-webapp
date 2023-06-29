@@ -1,0 +1,54 @@
+@use '../../styles/colors' as colors;
+
+.navigation-outer-container {
+    width: 100%;
+    height: auto;
+}
+
+.navigation-upper-container {
+    height: 70px;
+    width: 100%;
+    background-color: colors.$cream;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .navigation-logo {
+        height: 60px;
+        width: 60px;
+    }
+}
+
+.navigation-upper-inner-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navigation-lower-container {
+    height: 60px;
+    width: 100%;
+    background-color: colors.$cream;
+    display: flex;
+    align-items: center;
+}
+
+.navigation-link-options {
+    display: flex;
+    height: 60px;
+    
+    a {
+        height: 100%;
+        padding: 0 20px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        border-bottom: solid 2px colors.$cream;
+        cursor: pointer;
+        
+        &:hover {
+            background-color: colors.$dark_cream;
+            border-bottom-color: colors.$main_orange;
+        }
+    }
+}

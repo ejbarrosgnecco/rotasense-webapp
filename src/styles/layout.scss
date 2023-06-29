@@ -1,0 +1,44 @@
+@font-face {
+    font-family: Figtree;
+    font-style: normal;
+    font-weight: 400;
+    src: url(../assets/fonts/Figtree-Regular.ttf);
+}
+ 
+ @font-face {
+    font-family: Figtree;
+    font-style: normal;
+    font-weight: bold;
+    src: url(../assets/fonts/Figtree-Bold.ttf);
+} 
+
+$font-stack: Figtree, Helvetica, sans-serif;
+
+* {
+    transition: all 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+ }
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: $font-stack;
+}
+
+img {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.body-width {
+    max-width: 95%;
+    width: 1400px;
+    height: 100%;
+}
+
+.main-body-container {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
+}
