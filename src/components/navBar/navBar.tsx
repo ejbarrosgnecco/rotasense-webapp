@@ -1,6 +1,6 @@
 import React from "react"
 
-import "./styles.scss";
+import "./navBar-styles.scss";
 
 const NavBar: React.FC = (): JSX.Element => {
     return (
@@ -16,12 +16,12 @@ const NavBar: React.FC = (): JSX.Element => {
             </div>
 
             <div className="navigation-lower-container">
-                <div className="navigation-lower-inner-container">
+                <div className="navigation-lower-inner-container body-width">
                     <ul className="navigation-link-options">
-                        <a>Dashboard</a>
-                        <a>Schedules</a>
-                        <a>Organisation</a>
-                        <a>Settings</a>
+                        <a href="/">Dashboard</a>
+                        <a href="/schedules">Schedules</a>
+                        <a href="/organisation">Organisation</a>
+                        <a href="/settings">Settings</a>
                     </ul>
                 </div>
             </div>

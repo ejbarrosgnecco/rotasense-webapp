@@ -1,0 +1,184 @@
+@use "./colors.scss" as colors;
+
+// Standard select
+.standard-select {
+    padding: 13px 15px!important;
+    border-radius: 5px!important;
+    width: 100%;
+
+    .react-dropdown-select-input {
+        margin: 0;
+    }
+
+    &.mini {
+        padding: 13px 5px!important;
+
+        .react-dropdown-select-input {
+            width: 0;
+        }
+
+        .react-dropdown-select-item {
+            padding: 5px;
+            text-align: center;
+        }
+    }
+
+    &.error {
+        border: solid 1px #f00;
+    }
+}
+
+// Date picker front
+.date-picker-front {
+    padding: 13px 15px;
+    border-radius: 5px;
+    border: solid 1px #ccc;
+    cursor: pointer;
+    height: 22px;
+    width: fit-content;
+    min-width: 180px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 10px;
+
+    &:before {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f073"
+    }
+
+    &:hover {
+        border-color: #0074D9;
+    }
+}
+
+// Expanded input with icon
+.expanded-input-wrapper {
+    width: calc(100% - 20px);
+    height: fit-content;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    margin-bottom: 15px;
+    column-gap: 10px;
+    align-items: center;
+    border: solid 1px colors.$off_black;
+    text-align: left;
+ 
+    &:before {
+       font-family: "Font Awesome 5 Free";
+       font-size: 20px;
+       padding: 8px
+    }
+ 
+    &.error {
+       border: solid 1px #f00!important
+    }
+ 
+    // Icons
+    &.email:before {
+       content: "\f0e0";
+       font-weight: 900;
+    } 
+ 
+    &.password:before {
+       content: "\f023";
+       font-weight: 900;
+    }
+ 
+    &.repeat:before {
+       content: "\f363";
+       font-weight: 900;
+    }
+}
+ 
+.expanded-input-content {
+    display: flex;
+    flex-direction: column-reverse;
+    width: 100%;
+}
+ 
+.standard-label {
+    display: block;
+    margin-bottom: 7px;
+}
+ 
+.expanded-input-label {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 3px;
+    cursor: text;
+}
+ 
+.expanded-input {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    border-radius: 5px;
+    padding: 5px 0;
+ 
+    &.textarea {
+       min-width: 100%;
+       max-width: 100%;
+       min-height: 60px;
+       max-height: 200px;
+    }
+ 
+    &:focus {
+       font-size: 18px;
+       & + .expanded-input-label {
+          font-size: 12px;
+       }
+    }
+}
+
+// Checkbox agreement
+.checkbox-agreement-wrapper {
+    display: flex;
+    align-items: flex-start;
+    column-gap: 10px;
+
+    h5 {
+        margin: 0
+    }
+ 
+    p {
+       margin: 2px 0 0 0;
+    }
+ }
+ 
+ .checkbox-agreement-input {
+   &.invisible {
+       position: fixed;
+       opacity: 0;
+    }
+    &:checked {
+       &+ .checkbox-agreement-checkbox {
+          background-color: colors.$green;
+ 
+          &:after {
+             color: #FFF;
+             content: "\f00c";
+             font-family: "Font Awesome 5 Free";
+             font-size: 18px;
+             font-weight: 900;
+          }
+       }
+    }
+ }
+ 
+ .checkbox-agreement-checkbox {
+    align-items: center;
+    border: 1px solid #000;
+    cursor: pointer;
+    display: flex;
+    height: 5px;
+    justify-content: center;
+    padding: 8px;
+    position: relative;
+    width: 5px;
+    z-index: 3;
+    border-radius: 3px;
+ }

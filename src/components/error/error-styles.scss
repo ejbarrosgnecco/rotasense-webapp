@@ -1,0 +1,21 @@
+@keyframes pulse {
+    0% { transform: scale(0.8) }
+    50% { transform: scale(1.2) }
+    100% { transform: scale(0.8) }
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    color: #F00;
+    text-align: left;
+
+    &:before {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f071";
+        display: inline-block;
+        animation: pulse infinite 1s ease-in-out
+    }
+}

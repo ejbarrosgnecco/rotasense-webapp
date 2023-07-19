@@ -1,0 +1,72 @@
+@keyframes slowFlash {
+    0% { background-color: #dadada; }
+    50% { background-color: #bebebe; }
+    100% { background-color: #dadada; }
+}
+
+.loading-navigation-outer-container {
+    width: 100%;
+    height: auto;
+}
+
+.loading-navigation-upper-container {
+    height: 70px;
+    width: 100%;
+    background-color: #ececec;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-navigation-upper-inner-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.loading-logo-mask {
+    height: 50px;
+    width: 50px;
+    animation: slowFlash infinite 1s;
+}
+
+.loading-name-mask {
+    height: 30px;
+    width: 180px;
+    animation: slowFlash infinite 1s;
+}
+
+.loading-navigation-lower-container {
+    height: 60px;
+    width: 100%;
+    background-color: #ececec;
+    display: flex;
+    justify-content: center;
+}
+
+.loading-navigation-link-mask {
+    display: flex;
+    height: 60px;
+    padding: 0;
+    margin: 0;
+    column-gap: 5px;
+
+    div {
+        height: 80%;
+        width: 80px;
+        animation: slowFlash infinite 1s;
+    }
+}
+
+.loading-text-container {
+    height: calc(100vh - 130px);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-main-logo {
+    height: 220px;
+}

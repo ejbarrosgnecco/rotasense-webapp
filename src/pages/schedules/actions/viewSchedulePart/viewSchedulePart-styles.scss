@@ -1,0 +1,9 @@
+.schedule-part-edit-columns {
+    display: grid;
+    grid-template-columns: 60% 35%;
+    column-gap: 5%;
+
+    &.edit {
+        display: block;
+    }
+}

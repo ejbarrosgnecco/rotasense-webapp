@@ -1,0 +1,280 @@
+@use "./colors.scss" as colors;
+
+// Standard button
+.standard-button {
+    display: inline-block;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    height: fit-content;
+    width: fit-content;
+    text-decoration: none;
+
+    &.mini {
+        padding: 8px 16px;
+    }
+
+    // Colors
+    &.green {
+        background-color: colors.$green;
+        color: #FFF;
+
+        &:hover {
+            background-color: colors.$dark_green;
+        }
+    }
+
+    &.light-gray {
+        background-color: #efefef;
+        color: colors.$off_black;
+
+        &:hover {
+            background-color: colors.$dark_green;
+            color: #FFF;
+        }
+    }
+}
+
+// Hover box button
+.hover-box-button {
+    background-color: #FFF;
+    border: none;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+
+    &:hover {
+        background-color: #ececec;
+        transform: scale(1.05);
+    }
+
+    // Alt colors
+    &.light-gray {
+        background-color: #fafafa;
+
+        &:hover {
+            background-color: #FFF;
+        }
+    }
+}
+
+// Remove / Quit X
+.remove-button {
+    background-color: #FFF;
+    border: none;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f00;
+    font-size: 20px;
+
+    &:after {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f00d";
+    }
+
+    &:hover {
+        background-color: #ececec;
+        transform: scale(1.05);
+    }
+}
+
+// Bin button
+.bin-button {
+    background-color: #FFF;
+    border: none;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+
+    &:after {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f2ed";
+    }
+
+    &:hover {
+        background-color: #ececec;
+        transform: scale(1.05);
+    }
+}
+
+// Add button
+.add-button {
+    background-color: #FFF;
+    border: none;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: colors.$off_black;
+    font-size: 20px;
+
+    &:after {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\2b";
+    }
+
+    &:hover {
+        background-color: #ececec;
+        transform: scale(1.05);
+    }
+
+    // Colours
+    &.light-gray {
+        background-color: #fafafa;
+
+        &:hover {
+            background-color: #FFF;
+        }
+    }
+}
+
+// Edit button
+.edit-button {
+    background-color: #FFF;
+    border: none;
+    padding: 4px 6px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 5px;
+    height: fit-content;
+    width: fit-content;
+
+    &:hover {
+        background-color: #ececec;
+        transform: scale(1.05)
+    }
+    
+    &:after {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f303"
+    }
+}
+
+// Plain text link
+.plain-text-link {
+    display: inline-block;
+    height: fit-content;
+    width: fit-content;
+    padding: 0 0 3px 0;
+    border: solid 1px transparent;
+    background-color: transparent;
+
+    &:hover {
+        border-bottom: solid 1px colors.$off_black;
+    }
+}
+
+// Underline text link
+.underline-text-link {
+    display: inline-block;
+    height: fit-content;
+    width: fit-content;
+    padding: 0 0 3px 0;
+    border: solid 1px transparent;
+    background-color: transparent;
+    border-bottom: solid 1px colors.$off_black;
+
+    &:hover {
+        color: colors.$main_orange;
+        border-bottom-color: colors.$main_orange
+    }
+}
+
+// Show password button
+.show-password-button {
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    
+    &:after {
+       font-family: "Font Awesome 5 Free";
+       font-weight: 400;
+    }
+ 
+    &.hide:after {
+       content: "\f06e"
+    }
+ 
+    &.show:after {
+       content: "\f070";
+    }
+}
+
+// Arrow buttons
+.arrow-button {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+        color: colors.$main_orange
+    }
+
+    &:after {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        font-size: 26px;
+    }
+
+    &.left:after {
+        content: "\f30a";
+    }
+
+    &.right:after {
+        content: "\f30b";
+    }
+}
+
+// More options button
+.more-options-button {
+    width: 20px!important;
+    border: none!important;
+    display: flex;
+    justify-content: center!important;
+    align-items: center!important;
+
+    &:focus {
+        box-shadow: none!important;
+    }
+
+    .react-dropdown-select-dropdown {
+        width: 120px!important;
+    }
+
+    .react-dropdown-select-dropdown-handle {
+        display: none;
+    }
+}
+
+.more-options-button-icon {
+    width: fit-content;
+    height: fit-content;
+    padding: 0;
+    margin: 0;
+    font-size: 20px;
+    background-color: transparent;
+    border: none;
+
+    &:after {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f142";
+    }
+}

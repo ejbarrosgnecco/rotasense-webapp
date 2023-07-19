@@ -6,6 +6,7 @@ import storage from "redux-persist/lib/storage";
 
 // Reducers
 import appPreferencesReducer, { appPreferencesSlice } from "./features/appPreferences";
+import userAuthenticationReducer, { userAuthenticationSlice } from "./features/userAuthentication";
 
 // ** App preferences persitance ** //
 const persistAppPreferences = {
@@ -13,11 +14,20 @@ const persistAppPreferences = {
     storage
 }
 
-const persistedAppPreferencesReducer = persistReducer(persistAppPreferences, appPreferencesReducer)
+const persistedAppPreferencesReducer = persistReducer(persistAppPreferences, appPreferencesReducer);
+
+// ** User authentication persistance ** //
+const persistUserAuthentication = {
+    key: "userAuthentication",
+    storage
+}
+
+const persistedUserAuthenticationReducer = persistReducer(persistUserAuthentication, userAuthenticationReducer)
 
 export const store = configureStore({
     reducer: {
-        appPreferences: persistedAppPreferencesReducer
+        appPreferences: persistedAppPreferencesReducer,
+        userAuthentication: persistedUserAuthenticationReducer
     },
     devTools: true
 })

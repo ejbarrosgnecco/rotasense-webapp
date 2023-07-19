@@ -1,0 +1,52 @@
+@use "./colors.scss" as colors;
+
+.invisible {
+    position: absolute;
+    opacity: 0;
+    z-index: 0;
+}
+.standard-accordion-header {
+    display: block;
+    width: 100%;
+    padding: 15px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    font-weight: bold;
+
+    &:after {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f077";
+        display: block;
+    }
+}
+
+.standard-accordion-trigger {
+    &:checked {
+        &+ .standard-accordion-header {
+            &:after {
+                transform: rotate(180deg);
+            }
+
+            &+ .standard-accordion-body {
+                padding: 5px 0 15px 0;
+                max-height: 200px;
+                overflow: scroll;
+            }
+        }
+    }
+}
+
+.standard-accordion-body {
+    transition: 0.3s ease-in-out all;
+    position: relative;
+    z-index: 1;
+    max-height: 0;
+    height: fit-content;
+    overflow: hidden;
+    border-bottom: solid 1px colors.$off_black;
+}

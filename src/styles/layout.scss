@@ -1,3 +1,5 @@
+@use "./colors.scss" as colors;
+
 @font-face {
     font-family: Figtree;
     font-style: normal;
@@ -24,6 +26,15 @@ body {
     font-family: $font-stack;
 }
 
+button, input, a {
+    font-family: $font-stack;
+}
+
+a, button {
+    cursor: pointer;
+    font-size: 16px;
+}
+
 img {
     max-height: 100%;
     max-width: 100%;
@@ -41,4 +52,35 @@ img {
     display: flex;
     justify-content: center;
     padding-top: 40px;
+}
+
+h1, h2 {
+    color: colors.$off_black;
+}
+
+h5 {
+    font-size: 14px;
+}
+
+p {
+    margin: 0;
+    color: colors.$off_black;
+}
+
+.secondary-text {
+    font-size: 14px;
+    color: #565656;
+    font-style: italic;
+}
+
+.split-column {
+    display: grid;
+    grid-template-columns: 47.5% 47.5%;
+    column-gap: 5%;
+}
+
+.flex-container {
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
 }

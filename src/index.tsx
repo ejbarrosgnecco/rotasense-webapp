@@ -8,10 +8,14 @@ import App from './App';
 import { Provider } from 'react-redux';
 import { persistor, store } from "./store/store";
 import { PersistGate } from 'redux-persist/integration/react';
-import Layout from './layout';
 
 // Core styles
 import "./styles/layout.scss";
+import "./styles/modals.scss";
+import "./styles/tables.scss";
+import "./styles/inputs.scss";
+import "./styles/buttons.scss";
+import "./styles/accordions.scss";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -25,9 +29,7 @@ root.render(
 
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <Layout>
           <App/>
-        </Layout>
       </PersistGate>
     </Provider>
   </BrowserRouter>

@@ -1,0 +1,87 @@
+@use "../../styles/colors.scss" as colors;
+
+.schedule-column-wrapper {
+    display: flex;
+
+    &.loading {
+        height: 300px;
+        width: 100%;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+.schedule-timemarker-outer-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.schedule-side-timeslot-container {
+    height: auto;
+    width: 120px;
+    list-style: none;
+    padding: 43px 0 0 0;
+    margin: 0;
+
+    li {
+        height: 100px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+}
+
+.schedule-columns-wrapper {
+    position: absolute;
+    width: calc( 95% - 120px);
+    max-width: 1400px;
+    padding-left: 120px;
+}
+
+.hour-marker-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 82px;
+    padding-top: 43px;
+}
+
+.hour-marker-line {
+    position: relative;
+    display: block;
+    width: 100%;
+    border: dashed 1px #ececec;
+    height: 0;
+}
+
+.current-time-marker {
+    position: absolute;
+    width: calc(95% - 110px);
+    border-color: colors.$main_orange;
+    z-index: 30;
+}
+
+.filters-bar-container {
+    width: 100%;
+    display: grid;
+    align-items: center;
+    grid-template-columns: 30% 30% 30%;
+    column-gap: 5%;
+}
+
+.date-filter-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 10px;
+}
+
+.date-select-arrows {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 20px;
+}
