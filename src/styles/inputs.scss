@@ -10,12 +10,19 @@
         margin: 0;
     }
 
+    .react-dropdown-select-content {
+        display: flex!important;
+        flex-wrap: nowrap!important;
+        overflow: hidden;
+        text-overflow: ellipsis!important;
+    }
+
     &.mini {
         padding: 13px 5px!important;
 
-        .react-dropdown-select-input {
-            width: 0;
-        }
+        /*.react-dropdown-select-input {
+           //width: 0;
+        }*/
 
         .react-dropdown-select-item {
             padding: 5px;
@@ -24,7 +31,7 @@
     }
 
     &.error {
-        border: solid 1px #f00;
+        border: solid 1px #f00!important;
     }
 }
 
@@ -41,6 +48,10 @@
     justify-content: space-between;
     align-items: center;
     column-gap: 10px;
+
+    &.error {
+        border-color: #F00;
+    }
 
     &:before {
         font-family: "Font Awesome 5 Free";
@@ -73,7 +84,16 @@
     }
  
     &.error {
-       border: solid 1px #f00!important
+        width: calc(100% - 22px);
+        border: solid 1px #f00!important;
+
+        &.attached {
+            border-radius: 5px 5px 0 0;
+        }
+    }
+
+    &.disabled {
+        background-color: #fafafa;
     }
  
     // Icons
@@ -86,10 +106,31 @@
        content: "\f023";
        font-weight: 900;
     }
+
+    &.repeat-password:before {
+        content: "\f363";
+        font-weight: 900;
+    }
  
     &.repeat:before {
        content: "\f363";
        font-weight: 900;
+    }
+
+    // Colors
+    &.orange {
+        background-color: colors.$dark_orange;
+        border-color: colors.$dark_orange;
+        color: #FFF;
+
+        input {
+            color: #FFF;
+
+            &::placeholder {
+                opacity: 1;
+                color: #ccc;
+            }
+        }
     }
 }
  
@@ -131,6 +172,21 @@
        & + .expanded-input-label {
           font-size: 12px;
        }
+    }
+}
+
+.expanded-input-select {
+    background-color: transparent;
+    border: none!important;
+    min-height: 28px!important;
+    padding: 2px 0!important;
+
+    .react-dropdown-select-input {
+        margin-left: 0!important;
+    }
+
+    &:hover {
+        background-color: #fafafa;
     }
 }
 

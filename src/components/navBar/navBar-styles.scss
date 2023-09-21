@@ -37,6 +37,7 @@
 .navigation-link-options {
     display: flex;
     height: 60px;
+    padding-left: 0;
     
     a {
         color: colors.$off_black;
@@ -52,6 +53,29 @@
         &:hover {
             background-color: colors.$dark_cream;
             border-bottom-color: colors.$main_orange;
+        }
+    }
+}
+
+.user-trigger-button {
+    background-color: transparent;
+    border: none!important;
+    outline: none;
+
+    &:focus-visible {
+        outline: none!important;
+    }
+
+    &:focus {
+        box-shadow: none!important;
+    }
+
+    .react-dropdown-select-item-selected {
+        background-color: initial!important;
+        color: initial!important;
+
+        &:hover {
+            background-color: #0074d91a!important;
         }
     }
 }

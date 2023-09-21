@@ -7,8 +7,8 @@ import { RootState } from "../../../store/store";
 import { SuccessResponse } from "../../../types.config";
 
 export interface UserAbbrev {
-    full_name: string,
-    email_address: string
+    fullName: string,
+    emailAddress: string
     _id: string
 }
 
@@ -21,9 +21,11 @@ axiosRetry(axios, {
 })
 
 const UserLookup: React.FC<{
-    closeModal: Dispatch<SetStateAction<boolean>>,
-    handleSelectUser: (user: UserAbbrev) => void
-}> = ({ closeModal, handleSelectUser }): JSX.Element => {
+    closeModal: () => void,
+    handleSelectUser: (user: UserAbbrev) => void,
+    title?: string,
+    teamId?: string
+}> = ({ closeModal, handleSelectUser, teamId, title }): JSX.Element => {
     const userDetails = useSelector((state: RootState) => state.userAuthentication)
     
     const [filter, setFilter] = useState<string>("");
@@ -39,7 +41,8 @@ const UserLookup: React.FC<{
                     method: "GET",
                     url: process.env.REACT_APP_BACKEND_BASE_URL + "/organisation/users",
                     params: {
-                        abbreviated: true
+                        abbreviated: true,
+                        teamId: teamId || undefined
                     },
                     headers: {
                         Authorization: "Bearer " + userDetails.accessToken
@@ -79,11 +82,11 @@ const UserLookup: React.FC<{
             <div className="modal-wrapper-container">
                 <div className="standard-modal medium-width">
                     <div className="standard-modal-title">
-                        <h3>User lookup</h3>
+                        <h3>{title ? title : "User lookup"}</h3>
 
                         <button
                             className="close-modal-button"
-                            onClick={() => closeModal(false)}
+                            onClick={closeModal}
                         />
                     </div>
 
@@ -107,17 +110,17 @@ const UserLookup: React.FC<{
 
                         <div className="options-scroll-container">
                             {
-                                users.filter(u => u.full_name.toLowerCase().includes(filter.toLowerCase())).map(user => {
+                                users.filter(u => u.fullName.toLowerCase().includes(filter.toLowerCase())).map(user => {
                                     return (
                                         <div className="user-option" onClick={() => handleSelectUser(user)}>
-                                            {user.full_name}
+                                            {user.fullName}
                                         </div>
                                     )
                                 })
                             }
 
                             {
-                                users.filter(u => u.full_name.toLowerCase().includes(filter.toLowerCase())).length === 0 ? (
+                                users.filter(u => u.fullName.toLowerCase().includes(filter.toLowerCase())).length === 0 ? (
                                     <p style={{ padding: 10 }}>No users could be found</p>
                                 ) : null
                             }

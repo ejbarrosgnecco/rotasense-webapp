@@ -67,6 +67,16 @@ p {
     color: colors.$off_black;
 }
 
+ul {
+    li {
+        padding-bottom: 5px;
+        
+        &::marker {
+            color: colors.$main_orange;
+        }
+    }
+}
+
 .secondary-text {
     font-size: 14px;
     color: #565656;

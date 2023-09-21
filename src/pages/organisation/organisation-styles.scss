@@ -294,4 +294,20 @@
     justify-content: flex-end;
     column-gap: 10px;
     margin-bottom: 10px;
+    align-items: center;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50ch;
+    cursor: help;
+
+    &.active {
+        background-color: colors.$green;
+    }
+
+    &.suspended {
+        background-color: #F00;
+    }
 }

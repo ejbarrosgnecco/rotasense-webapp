@@ -5,9 +5,24 @@ import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
 // Reducers
-import appPreferencesReducer, { appPreferencesSlice } from "./features/appPreferences";
-import userAuthenticationReducer, { userAuthenticationSlice } from "./features/userAuthentication";
+import appPreferencesReducer, { appPreferencesSlice } from "./features/system/appPreferences";
+import newAccountReducer from "./features/account/newAccount";
+import userAuthenticationReducer, { userAuthenticationSlice } from "./features/system/userAuthentication";
+import scheduleReducer from "./features/schedules/schedule";
+import schedulePartReducer from "./features/schedules/schedulePart"
 
+// === ACCOUNT === //
+// ** New account setup ** //
+const persistNewAccount = {
+    key: "newAccount",
+    storage
+}
+
+const persistedNewAccountReducer = persistReducer(persistNewAccount, newAccountReducer)
+
+// === SCHEDULES === //
+
+// === SYSTEM === //
 // ** App preferences persitance ** //
 const persistAppPreferences = {
     key: "appPreferences",
@@ -24,10 +39,15 @@ const persistUserAuthentication = {
 
 const persistedUserAuthenticationReducer = persistReducer(persistUserAuthentication, userAuthenticationReducer)
 
+
+
 export const store = configureStore({
     reducer: {
         appPreferences: persistedAppPreferencesReducer,
-        userAuthentication: persistedUserAuthenticationReducer
+        newAccount: persistedNewAccountReducer,
+        userAuthentication: persistedUserAuthenticationReducer,
+        schedule: scheduleReducer,
+        schedulePart: schedulePartReducer
     },
     devTools: true
 })

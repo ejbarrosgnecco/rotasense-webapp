@@ -11,11 +11,26 @@
     color: #F00;
     text-align: left;
 
+    &.attached {
+        background-color: #F00;
+        color: #FFF;
+        padding: 10px;
+        margin-top: -15px!important;
+        border: solid 1px #F00;
+        border-radius: 0 0 5px 5px;
+    }
+
     &:before {
         font-family: "Font Awesome 5 Free";
         font-weight: 900;
         content: "\f071";
         display: inline-block;
         animation: pulse infinite 1s ease-in-out
+    }
+}
+
+.options-scroll-container {
+    & + .error-message.attached {
+        margin-top: 0px!important;
     }
 }

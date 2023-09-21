@@ -103,11 +103,11 @@ const RenameDepartment: React.FC<{
                         resolve()
                     })
                 })
-            , "rename_department")
+            , "renameDepartment")
         }
     }
 
-    const renameDepartmentPromise = usePromiseTracker({ area: "rename_department" }).promiseInProgress;
+    const renameDepartmentPromise = usePromiseTracker({ area: "renameDepartment" }).promiseInProgress;
 
     return (
         <div className="modal-backdrop show">
@@ -175,7 +175,7 @@ const RenameDepartment: React.FC<{
                         renameDepartmentPromise ? (
                             <div className="standard-modal-additional-info">
                                 <InlinePromiseTracker
-                                    searchArea="rename_department"
+                                    searchArea="renameDepartment"
                                 />
                             </div>
                         ) : null

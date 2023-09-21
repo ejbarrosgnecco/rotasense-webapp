@@ -3,7 +3,7 @@ import axiosRetry from "axios-retry";
 import React, { useEffect, useState } from "react"
 import { trackPromise, usePromiseTracker } from "react-promise-tracker";
 import { useDispatch, useSelector } from "react-redux";
-import { resetUserAuthentication, setUserAuthentication, UserRecord } from "../../store/features/userAuthentication";
+import { resetUserAuthentication, setUserAuthentication, UserRecord } from "../../store/features/system/userAuthentication";
 import { SuccessResponse } from "../../types.config";
 import { decodeToken } from "react-jwt";
 
@@ -11,6 +11,7 @@ import "./login-styles.scss";
 import { RootState } from "../../store/store";
 import InlinePromiseTracker from "../../components/promiseTrackers/inlineTracker";
 import ErrorMessage from "../../components/error/error";
+import ProtectedLoadingScreen from "../../components/loadingScreens/protectedLoadingScreen";
 
 axiosRetry(axios, {
     retries: 5,
@@ -156,19 +157,15 @@ const Login: React.FC = (): JSX.Element => {
                         resolve();
                     })
                 })
-            , 'submit_login')
+            , 'submitLogin')
         }
     }
 
-    const loginPromise = usePromiseTracker({ area: "submit_login" }).promiseInProgress;
+    const loginPromise = usePromiseTracker({ area: "submitLogin" }).promiseInProgress;
 
     switch (authState) {
         case "pending":
-            return (
-                <React.Fragment>
-                    Splash page
-                </React.Fragment>
-            )
+            return <ProtectedLoadingScreen/>
 
         case "authenticated":
             return (
@@ -277,7 +274,7 @@ const Login: React.FC = (): JSX.Element => {
                             
 
                             <InlinePromiseTracker
-                                searchArea="submit_login"
+                                searchArea="submitLogin"
                             />
         
                             <div className="or-breaker-container">
@@ -290,9 +287,14 @@ const Login: React.FC = (): JSX.Element => {
                             
                             <h3>Don't have an account yet?</h3>
                             <p>Set up a <u>free account</u> for your organisation and start planning your schedules.</p>
-        
+                            
+                            <br/>
+                            
                             <button 
                                 className="standard-button light-gray"
+                                onClick={() => {
+                                    window.location.href = "/create-account"
+                                }}
                                 disabled={loginPromise}
                             >Set up account</button>
                         </div>

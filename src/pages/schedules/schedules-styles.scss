@@ -16,16 +16,27 @@
     width: 100%;
     display: flex;
     flex-direction: row-reverse;
+
+    &.expanded {
+        .schedule-side-timeslot-container {
+            padding-top: 58px;
+        }
+        
+        .hour-marker-wrapper {
+            padding-top: 58px;
+        }
+    }
 }
 
 .schedule-side-timeslot-container {
     height: auto;
     width: 120px;
     list-style: none;
-    padding: 43px 0 0 0;
+    padding: 28px 0 0 0;
     margin: 0;
 
     li {
+        padding: 0;
         height: 100px;
         width: 100%;
         display: flex;
@@ -39,6 +50,8 @@
     width: calc( 95% - 120px);
     max-width: 1400px;
     padding-left: 120px;
+    display: flex;
+    column-gap: 20px;
 }
 
 .hour-marker-wrapper {
@@ -46,7 +59,7 @@
     display: flex;
     flex-direction: column;
     row-gap: 82px;
-    padding-top: 43px;
+    padding-top: 28px;
 }
 
 .hour-marker-line {
@@ -67,9 +80,12 @@
 .filters-bar-container {
     width: 100%;
     display: grid;
-    align-items: center;
+    align-items: flex-start;
     grid-template-columns: 30% 30% 30%;
     column-gap: 5%;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 36
 }
 
 .date-filter-wrapper {
@@ -84,4 +100,17 @@
     justify-content: center;
     align-items: center;
     column-gap: 20px;
+}
+
+.mini-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.time-select-wrapper {
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+    justify-self: center;
+    justify-content: center;
 }

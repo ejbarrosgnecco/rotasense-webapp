@@ -1,8 +1,13 @@
+import axios from "axios"
+import axiosRetry from "axios-retry"
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react"
 import Select from "react-dropdown-select"
-import { usePromiseTracker } from "react-promise-tracker"
+import { trackPromise, usePromiseTracker } from "react-promise-tracker"
+import { useSelector } from "react-redux"
 import ErrorMessage from "../../../components/error/error"
 import Tooltip from "../../../components/tooltip/tooltip"
+import { RootState } from "../../../store/store"
+import { SuccessResponse } from "../../../types.config"
 import { Action, Department, Team } from "../organisation"
 import AddNewAction from "./addNewAction"
 import UserLookup, { UserAbbrev } from "./userLookup"
@@ -17,9 +22,9 @@ interface NewTeam {
     manager: {
         _id: string,
         name: string,
-        email_address: string
+        emailAddress: string
     },
-    operating_hours: {
+    operatingHours: {
         from: string,
         to: string
     },
@@ -27,12 +32,22 @@ interface NewTeam {
     roles: string[]
 }
 
+axiosRetry(axios, {
+    retries: 5,
+    retryDelay: (retryCount) => {
+       console.log(`Error - retry attempt: ${retryCount}`)
+       return retryCount * 500
+    }
+})
+
 const AddNewTeam: React.FC<{
     closeModal: Dispatch<SetStateAction<boolean>>,
     teamOptions: Team[],
     setTeamOptions: Dispatch<SetStateAction<Team[]>>,
     department: Department
 }> = ({ closeModal, teamOptions, setTeamOptions, department }): JSX.Element => {
+    const userDetails = useSelector((state: RootState) => state.userAuthentication)
+
     const [showUserLookup, setShowUserLookup] = useState<boolean>(false);
     const [showAddNewAction, setShowAddNewAction] = useState<boolean>(false);
 
@@ -40,7 +55,7 @@ const AddNewTeam: React.FC<{
         action: "",
         color: "",
         restricted: false,
-        restricted_to: []
+        restrictedTo: []
     })
     
     const [hourOptions, setHourOptions] = useState<string[]>(["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"])
@@ -57,9 +72,9 @@ const AddNewTeam: React.FC<{
         manager: {
             _id: "",
             name: "",
-            email_address: ""
+            emailAddress: ""
         },
-        operating_hours: {
+        operatingHours: {
             from: "09:00",
             to: "17:00"
         },
@@ -67,13 +82,15 @@ const AddNewTeam: React.FC<{
         roles: []
     })
     
+    const [errorMessage, setErrorMessage] = useState<string>("")
     const [errors, setErrors] = useState({
         name: false,
         manager: false,
-        "operating_hours.from": false,
-        "operating_hours.to": false,
+        "operatingHours.from": false,
+        "operatingHours.to": false,
         actions: false,
-        roles: false
+        roles: false,
+        error: false
     })
 
     const handleFillInForm = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -106,8 +123,8 @@ const AddNewTeam: React.FC<{
             ...teamDetails,
             manager: {
                 _id: user._id,
-                name: user.full_name,
-                email_address: user.email_address
+                name: user.fullName,
+                emailAddress: user.emailAddress
             }
         })
 
@@ -127,21 +144,21 @@ const AddNewTeam: React.FC<{
 
         const parts = ["hour", "minute"];
 
-        let newValue = (teamDetails.operating_hours as any)[keyName].split(":");
+        let newValue = (teamDetails.operatingHours as any)[keyName].split(":");
         newValue[parts.indexOf(keyPart)] = value;
         newValue = newValue.join(":");
 
         setTeamDetails({
             ...teamDetails,
-            operating_hours: {
-                ...teamDetails.operating_hours,
+            operatingHours: {
+                ...teamDetails.operatingHours,
                 [keyName]: newValue
             }
         })
 
         setErrors({
             ...errors,
-            [`operating_hours.${keyName}`]: false
+            [`operatingHours.${keyName}`]: false
         })
     }
 
@@ -167,7 +184,7 @@ const AddNewTeam: React.FC<{
             action: "",
             color: "",
             restricted: false,
-            restricted_to: []
+            restrictedTo: []
         })
     }
 
@@ -186,7 +203,7 @@ const AddNewTeam: React.FC<{
             action: "",
             color: "",
             restricted: false,
-            restricted_to: []
+            restrictedTo: []
         })
     }
 
@@ -205,7 +222,7 @@ const AddNewTeam: React.FC<{
             action: "",
             color: "",
             restricted: false,
-            restricted_to: []
+            restrictedTo: []
         })
     }
 
@@ -229,14 +246,14 @@ const AddNewTeam: React.FC<{
         }
 
         // Check that all times & actions are valid
-        if(/^([0-9]{2})+:+([0-9]{2})$/.test(teamDetails.operating_hours.from) === false) {
+        if(/^([0-9]{2})+:+([0-9]{2})$/.test(teamDetails.operatingHours.from) === false) {
             errorsCount++;
-            errorsObject["operating_hours.from"] = true;
+            errorsObject["operatingHours.from"] = true;
         }
 
-        if(/^([0-9]{2})+:+([0-9]{2})$/.test(teamDetails.operating_hours.to) === false) {
+        if(/^([0-9]{2})+:+([0-9]{2})$/.test(teamDetails.operatingHours.to) === false) {
             errorsCount++;
-            errorsObject["operating_hours.to"] = true;
+            errorsObject["operatingHours.to"] = true;
         }
 
         if(teamDetails.actions.length === 0) {
@@ -258,11 +275,62 @@ const AddNewTeam: React.FC<{
 
     const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>): Promise<void> => {
         if(handleDataValidation() === true) {
-            alert("go")
+            trackPromise(
+                new Promise<void>( async (resolve, reject) => {
+                    await axios({
+                        method: "POST",
+                        url: process.env.REACT_APP_BACKEND_BASE_URL + "/organisation/teams",
+                        headers: {
+                            Authorization: "Bearer " + userDetails.accessToken
+                        },
+                        data: {
+                            ...teamDetails,
+                            department: {
+                                _id: department._id,
+                                name: department.name
+                            }
+                        }
+                    })
+                    .then((value: { data: SuccessResponse}) => {
+                        const response = value.data;
+
+                        if(response.success === true) {
+                            setTeamOptions([
+                                ...teamOptions,
+                                {
+                                    name: teamDetails.name,
+                                    _id: response.data.teamId
+                                }
+                            ])
+
+                            closeModal(false);
+
+                            resolve();
+                        } else {
+                            setErrorMessage(response.reason || "");
+                            setErrors({
+                                ...errors,
+                                error: true
+                            })
+
+                            resolve()
+                        }
+                    })
+                    .catch(() => {
+                        setErrorMessage("Oops, there was a technical error, please try again");
+                        setErrors({
+                            ...errors,
+                            error: true
+                        })
+
+                        resolve()
+                    })
+                })
+            , 'addNewTeam')
         }
     }
 
-    const submitPromise = usePromiseTracker({ area: "add_new_team" }).promiseInProgress;
+    const submitPromise = usePromiseTracker({ area: "addNewTeam" }).promiseInProgress;
 
     return (
         <React.Fragment>
@@ -325,7 +393,7 @@ const AddNewTeam: React.FC<{
                                                     manager: {
                                                         _id: "",
                                                         name: "",
-                                                        email_address: ""
+                                                        emailAddress: ""
                                                     }
                                                 })
                                             }}
@@ -454,13 +522,13 @@ const AddNewTeam: React.FC<{
                                             <div className="time-select-wrapper">
                                                 {/* Hours */}
                                                 <Select
-                                                    className={`standard-select mini ${errors["operating_hours.from"]=== true ? 'error' : ''}`}
+                                                    className={`standard-select mini ${errors["operatingHours.from"]=== true ? 'error' : ''}`}
                                                     style={{ width: 60 }}
                                                     options={hourOptions.map(hour => {
                                                         return { value: hour }
                                                     })}
                                                     labelField={"value"}
-                                                    values={[{ value: teamDetails.operating_hours.from.split(":")[0] }]}
+                                                    values={[{ value: teamDetails.operatingHours.from.split(":")[0] }]}
                                                     placeholder="-"
                                                     multi={false}
                                                     backspaceDelete={false}
@@ -470,13 +538,13 @@ const AddNewTeam: React.FC<{
                                                 :
                                                 {/* Minutes */}
                                                 <Select
-                                                    className={`standard-select mini ${errors["operating_hours.from"] === true ? 'error' : ''}`}
+                                                    className={`standard-select mini ${errors["operatingHours.from"] === true ? 'error' : ''}`}
                                                     style={{ width: 60 }}
                                                     options={minuteOptions.map(minute => {
                                                         return { value: minute }
                                                     })}
                                                     labelField={"value"}
-                                                    values={[{ value: teamDetails.operating_hours.from.split(":")[1] }]}
+                                                    values={[{ value: teamDetails.operatingHours.from.split(":")[1] }]}
                                                     placeholder="-"
                                                     multi={false}
                                                     backspaceDelete={false}
@@ -490,13 +558,13 @@ const AddNewTeam: React.FC<{
                                             <div className="time-select-wrapper">
                                                 {/* Hours */}
                                                 <Select
-                                                    className={`standard-select mini ${errors["operating_hours.to"]=== true ? 'error' : ''}`}
+                                                    className={`standard-select mini ${errors["operatingHours.to"]=== true ? 'error' : ''}`}
                                                     style={{ width: 60 }}
                                                     options={hourOptions.map(hour => {
                                                         return { value: hour }
                                                     })}
                                                     labelField={"value"}
-                                                    values={[{ value: teamDetails.operating_hours.to.split(":")[0] }]}
+                                                    values={[{ value: teamDetails.operatingHours.to.split(":")[0] }]}
                                                     placeholder="-"
                                                     multi={false}
                                                     backspaceDelete={false}
@@ -506,13 +574,13 @@ const AddNewTeam: React.FC<{
                                                 :
                                                 {/* Minutes */}
                                                 <Select
-                                                    className={`standard-select mini ${errors["operating_hours.to"] === true ? 'error' : ''}`}
+                                                    className={`standard-select mini ${errors["operatingHours.to"] === true ? 'error' : ''}`}
                                                     style={{ width: 60 }}
                                                     options={minuteOptions.map(minute => {
                                                         return { value: minute }
                                                     })}
                                                     labelField={"value"}
-                                                    values={[{ value: teamDetails.operating_hours.to.split(":")[1] }]}
+                                                    values={[{ value: teamDetails.operatingHours.to.split(":")[1] }]}
                                                     placeholder="-"
                                                     multi={false}
                                                     backspaceDelete={false}
@@ -526,7 +594,7 @@ const AddNewTeam: React.FC<{
                             </table>
 
                             {
-                                errors["operating_hours.from"] || errors["operating_hours.to"] ? (
+                                errors["operatingHours.from"] || errors["operatingHours.to"] ? (
                                     <ErrorMessage
                                         message="Please ensure that opening hours are formatted correctly"
                                     /> 
@@ -599,11 +667,11 @@ const AddNewTeam: React.FC<{
                         </div>
 
                         <div className="standard-modal-footer">
-                        <button
-                            className="standard-button green"
-                            onClick={handleSubmit}
-                        >Save team</button>
-                    </div>
+                            <button
+                                className="standard-button green"
+                                onClick={handleSubmit}
+                            >Save team</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -611,7 +679,7 @@ const AddNewTeam: React.FC<{
             {
                 showUserLookup ? (
                     <UserLookup
-                        closeModal={setShowUserLookup}
+                        closeModal={() => setShowUserLookup(false)}
                         handleSelectUser={handleSelectTeamManager}
                     />
                 ) : null

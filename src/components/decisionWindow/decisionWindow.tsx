@@ -7,11 +7,13 @@ const DecisionWindow: React.FC<{
     title: string,
     bodyJsx?: JSX.Element[],
     acceptButtonText?: string,
+    declineButtonText?: string,
+    hideCloseButton?: boolean,
     closeModal: (e: React.FormEvent<HTMLButtonElement>) => void,
     acceptFunction: (e: React.FormEvent<HTMLButtonElement>) => void,
     searchArea?: string,
     errorMessage?: string
-}> = ({ title, bodyJsx, acceptFunction, acceptButtonText, closeModal, searchArea, errorMessage }): JSX.Element => {
+}> = ({ title, bodyJsx, acceptFunction, declineButtonText, acceptButtonText, hideCloseButton, closeModal, searchArea, errorMessage }): JSX.Element => {
     const { promiseInProgress } = usePromiseTracker({ area: searchArea })
 
     return (
@@ -21,10 +23,15 @@ const DecisionWindow: React.FC<{
                     <div className="standard-modal-title">
                         <h3>{title}</h3>
 
-                        <button
-                            className="close-modal-button"
-                            onClick={closeModal}
-                        />
+                        {
+                            !hideCloseButton ? (
+                                <button
+                                    className="close-modal-button"
+                                    onClick={closeModal}
+                                />
+                            ) : null
+                        }
+                        
                     </div>
 
                     {
@@ -39,7 +46,7 @@ const DecisionWindow: React.FC<{
                         <button
                             className="plain-text-link"
                             onClick={closeModal}
-                        >Cancel</button>
+                        >{declineButtonText || "Cancel"}</button>
 
                         <button
                             className="standard-button green"

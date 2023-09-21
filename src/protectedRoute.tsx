@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import ProtectedLoadingScreen from "./components/loadingScreens/protectedLoadingScreen";
 import Layout from "./layout";
-import { resetUserAuthentication, UserRecord } from "./store/features/userAuthentication";
+import { resetUserAuthentication, UserRecord } from "./store/features/system/userAuthentication";
 import { RootState } from "./store/store";
 import { SuccessResponse } from "./types.config";
 

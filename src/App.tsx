@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, Routes as Switch } from "react-router-dom";
 import Layout from './layout';
+import CreateAccount from './pages/createAccount/createAccount';
 import Login from './pages/login/login';
 import Organisation from './pages/organisation/organisation';
 import ManageSchedules from './pages/schedules/schedules';
@@ -10,6 +11,7 @@ function App() {
   return (
     <Switch>
       <Route path="/login" element={<Login/>}/>
+      <Route path="/create-account" element={<CreateAccount/>}/>
       <Route path="/schedules" element={
         <ProtectedRoute>
           <ManageSchedules/>

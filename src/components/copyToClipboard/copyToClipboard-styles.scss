@@ -1,0 +1,10 @@
+@use "../../styles/colors.scss" as colors;
+
+.copy-clipboard {
+    font-size: 16px;
+    cursor: pointer;
+
+    &:hover {
+        color: colors.$main_orange;
+    }
+}

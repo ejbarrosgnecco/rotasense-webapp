@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction, useState } from "react"
 import { usePromiseTracker } from "react-promise-tracker";
 import DecisionWindow from "../../../components/decisionWindow/decisionWindow";
 import ErrorMessage from "../../../components/error/error";
+import InlinePromiseTracker from "../../../components/promiseTrackers/inlineTracker";
 import { Action } from "../organisation";
 
 const ViewEditAction: React.FC<{
@@ -11,8 +12,9 @@ const ViewEditAction: React.FC<{
     action: Action,
     saveAction: (newValue: Action, prevValue: Action) => void,
     existingActions: Action[],
-    deleteAction: (action: Action) => void
-}> = ({ closeModal, defaultState, roles, action, saveAction, existingActions, deleteAction }): JSX.Element => {
+    deleteAction: (action: Action) => void,
+    error?: boolean
+}> = ({ closeModal, defaultState, roles, action, saveAction, existingActions, deleteAction, error }): JSX.Element => {
     const [editMode, setEditMode] = useState<boolean>(defaultState === "edit");
     const [editValues, setEditValues] = useState<Action>(action);
 
@@ -21,7 +23,7 @@ const ViewEditAction: React.FC<{
     const [errors, setErrors] = useState({
         action: false,
         color: false,
-        restricted_to: false,
+        restrictedTo: false,
         same_name: false
     })
 
@@ -32,6 +34,8 @@ const ViewEditAction: React.FC<{
         if(editValues.action.length < 2) {
             errorsCount++;
             errorsObject.action = true
+        } else if (editValues.action === action.action) {
+            // Do nothing
         } else if (existingActions.some(a => a.action === editValues.action)) {
             errorsCount++;
             errorsObject.same_name = true
@@ -42,9 +46,9 @@ const ViewEditAction: React.FC<{
             errorsObject.color = true;
         }
 
-        if(editValues.restricted && editValues.restricted_to.length === 0) {
+        if(editValues.restricted && editValues.restrictedTo.length === 0) {
             errorsCount++;
-            errorsObject.restricted_to = true
+            errorsObject.restrictedTo = true
         }
 
         if(errorsCount > 0) {
@@ -65,7 +69,7 @@ const ViewEditAction: React.FC<{
         }
     }
 
-    const saveActionPromise = usePromiseTracker({ area: "save_action" }).promiseInProgress;
+    const saveActionPromise = usePromiseTracker({ area: "edit_action" }).promiseInProgress;
 
     return (
         <div className="modal-backdrop show">
@@ -220,12 +224,12 @@ const ViewEditAction: React.FC<{
                                             setEditValues({
                                                 ...editValues,
                                                 restricted: e.target.checked,
-                                                restricted_to: []
+                                                restrictedTo: []
                                             })
 
                                             setErrors({
                                                 ...errors,
-                                                restricted_to: false
+                                                restrictedTo: false
                                             })
                                         }}
                                         disabled={saveActionPromise}
@@ -255,35 +259,35 @@ const ViewEditAction: React.FC<{
                                     {
                                         editValues.restricted ? (
                                             <React.Fragment>
-                                                <div style={{marginTop: 20}} className={`options-scroll-container ${errors.restricted_to ? 'error' : ''}`}>
+                                                <div style={{marginTop: 20}} className={`options-scroll-container ${errors.restrictedTo ? 'error' : ''}`}>
                                                     {
                                                         roles.map(role => {
                                                             return (
                                                                 <div 
-                                                                    className={`user-option ${editValues.restricted_to.includes(role) ? "selected" : ""}`}
+                                                                    className={`user-option ${editValues.restrictedTo.includes(role) ? "selected" : ""}`}
                                                                     onClick={() => {
-                                                                        if(editValues.restricted_to.includes(role)) {
-                                                                            const index = editValues.restricted_to.indexOf(role)
+                                                                        if(editValues.restrictedTo.includes(role)) {
+                                                                            const index = editValues.restrictedTo.indexOf(role)
 
-                                                                            let newArray = [...editValues.restricted_to];
+                                                                            let newArray = [...editValues.restrictedTo];
                                                                             newArray.splice(index, 1);
 
                                                                             setEditValues({
                                                                                 ...editValues,
-                                                                                restricted_to: newArray
+                                                                                restrictedTo: newArray
                                                                             })
                                                                         } else {
                                                                             setEditValues({
                                                                                 ...editValues,
-                                                                                restricted_to: [
-                                                                                    ...editValues.restricted_to,
+                                                                                restrictedTo: [
+                                                                                    ...editValues.restrictedTo,
                                                                                     role
                                                                                 ]
                                                                             })
 
                                                                             setErrors({
                                                                                 ...errors,
-                                                                                restricted_to: false
+                                                                                restrictedTo: false
                                                                             })
                                                                         }
                                                                     }}
@@ -294,7 +298,7 @@ const ViewEditAction: React.FC<{
                                                 </div>
 
                                                 {
-                                                    errors.restricted_to ? (
+                                                    errors.restrictedTo ? (
                                                         <ErrorMessage
                                                             topSpacing="15px"
                                                             message="Please select at least one role for restriction"
@@ -311,9 +315,9 @@ const ViewEditAction: React.FC<{
                                         action.restricted ? (
                                             <React.Fragment>
                                                 <h5 style={{marginBottom: 10}}>Restricted to</h5>
-                                                <div className={`options-scroll-container ${errors.restricted_to ? 'error': ''}`}>
+                                                <div className={`options-scroll-container ${errors.restrictedTo ? 'error': ''}`}>
                                                     {
-                                                        action.restricted_to.map(role => {
+                                                        action.restrictedTo.map(role => {
                                                             return (
                                                                 <div className="role-option">{role}</div>
                                                             )
@@ -330,20 +334,40 @@ const ViewEditAction: React.FC<{
 
                     {
                         editMode ? (
-                            <div className="standard-modal-footer">
-                                <button
-                                    className="underline-text-link"
-                                    onClick={() => {
-                                        setEditMode(false);
-                                        setEditValues(action);
-                                    }}
-                                >Cancel</button>
+                            <React.Fragment>
+                                <div className="standard-modal-footer">
+                                    <button
+                                        className="underline-text-link"
+                                        onClick={() => {
+                                            setEditMode(false);
+                                            setEditValues(action);
+                                        }}
+                                    >Cancel</button>
 
-                                <button
-                                    className="standard-button green"
-                                    onClick={handleSubmit}
-                                >Save changes</button>
-                            </div>
+                                    <button
+                                        className="standard-button green"
+                                        onClick={handleSubmit}
+                                    >Save changes</button>
+                                </div>
+
+                                {
+                                    saveActionPromise || error ? (
+                                        <div className="standard-modal-additional-info">
+                                            <InlinePromiseTracker
+                                                searchArea="edit_action"
+                                            />
+
+                                            {
+                                                error ? (
+                                                    <ErrorMessage
+                                                        message="There was an issue editing this action, please try again"
+                                                    />
+                                                ) : null
+                                            }
+                                        </div>
+                                    ) : null
+                                }
+                            </React.Fragment>
                         ) : null
                     }
                 </div>
@@ -358,7 +382,6 @@ const ViewEditAction: React.FC<{
                         ]}
                         closeModal={() => setShowDecisionDeleteAction(false)}
                         acceptFunction={() => {
-                            setShowDecisionDeleteAction(false)
                             deleteAction(action)
                         }}
                     />

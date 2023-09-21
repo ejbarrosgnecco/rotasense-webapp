@@ -1,0 +1,95 @@
+@use "./colors.scss" as colors;
+
+.text-box {
+    width: calc(100% - 20px);
+    height: fit-content;
+    margin: 10px 0;
+    border: solid 1px;
+    border-radius: 5px;
+    overflow: hidden;
+
+    &.with-ignore {
+        margin-left: 0;
+
+        .text-box-body {
+            padding: 0 0 0 10px;
+            width: calc(100% - 10px + 80px);
+            transition: 0.2s ease-in-out margin-left;
+
+            &:hover {
+                margin-left: -80px;
+            }
+
+            p {
+                padding: 10px 10px 10px 0;
+            }
+        }
+    }
+
+    // Types
+    &.warning {
+        border-color: colors.$main_orange;
+
+        .text-box-body:before {
+            content: "\f071";
+            color: colors.$main_orange
+        }
+
+        .ignore-text-box-button {
+            background-color: colors.$main_orange;
+            color: #FFF;
+
+            &:hover {
+                background-color: colors.$dark_orange;
+            }
+        }
+    }
+
+    &.info {
+        border-color: colors.$green;
+
+        .text-box-body:before {
+            content: "\f05a";
+            color: colors.$green;
+        }
+
+        .ignore-text-box-button {
+            background-color: colors.$green;
+            color: #FFF;
+
+            &:hover {
+                background-color: colors.$dark_green;
+            }
+        }
+    }
+
+    &.errors {
+        border-color: #F00;
+    }
+}
+
+.text-box-body {
+    &:before {
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        font-size: 22px;
+        padding: 5px;
+        align-self: center;
+    }
+
+    position: relative;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    column-gap: 10px;
+    align-items: stretch;
+}
+
+.ignore-text-box-button {
+    display: flex;
+    width: 200px;
+    justify-content: center;
+    align-items: center;
+    justify-self: center;
+    border: none;
+}

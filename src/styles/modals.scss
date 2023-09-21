@@ -80,6 +80,15 @@
        align-items: center;
        text-align: center;
     }
+
+    .underline-text-link {
+        color: colors.$off_black;
+
+        &:hover {
+            color: colors.$main_orange!important;
+            border-bottom-color: colors.$main_orange!important;
+        }
+    }
  
     // Sizes
     &.medium-width {
@@ -97,6 +106,15 @@
 
 .standard-modal-body {
     padding: 25px;
+
+    &.loading {
+        min-height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        row-gap: 10px;
+    }
 
     h3, h4 {
         margin: 0

@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useState } from "react"
 import { usePromiseTracker } from "react-promise-tracker"
 import ErrorMessage from "../../../components/error/error"
+import InlinePromiseTracker from "../../../components/promiseTrackers/inlineTracker"
 import Tooltip from "../../../components/tooltip/tooltip"
 import { Action } from "../organisation"
 
@@ -8,19 +9,20 @@ const AddNewAction: React.FC<{
     saveAction: (newAction: Action) => void,
     existingActions: Action[],
     closeModal: Dispatch<SetStateAction<boolean>>,
-    roles: string[]
-}> = ({ saveAction, closeModal, roles, existingActions }): JSX.Element => {
+    roles: string[],
+    error?: boolean
+}> = ({ saveAction, closeModal, roles, existingActions, error }): JSX.Element => {
     const [actionDetails, setActionDetails] = useState<Action>({
         action: "",
         color: "",
         restricted: false,
-        restricted_to: []
+        restrictedTo: []
     })
 
     const [errors, setErrors] = useState({
         action: false,
         color: false,
-        restricted_to: false,
+        restrictedTo: false,
         same_name: false
     })
 
@@ -41,9 +43,9 @@ const AddNewAction: React.FC<{
             errorsObject.color = true;
         }
 
-        if(actionDetails.restricted && actionDetails.restricted_to.length === 0) {
+        if(actionDetails.restricted && actionDetails.restrictedTo.length === 0) {
             errorsCount++;
-            errorsObject.restricted_to = true
+            errorsObject.restrictedTo = true
         }
 
         if(errorsCount > 0) {
@@ -78,7 +80,7 @@ const AddNewAction: React.FC<{
         })
     }
 
-    const saveActionPromise = usePromiseTracker({ area: "add_action" }).promiseInProgress;
+    const saveActionPromise = usePromiseTracker({ area: "addAction" }).promiseInProgress;
 
     return (
         <div className="modal-backdrop show">
@@ -94,7 +96,7 @@ const AddNewAction: React.FC<{
                     </div>
 
                     <div className="standard-modal-body">
-                        <label className={`expanded-input-wrapper ${errors.action ? 'error' : ''}`} htmlFor="action">
+                        <label className={`expanded-input-wrapper ${errors.action || errors.same_name ? 'error' : ''}`} htmlFor="action">
                             <div className="expanded-input-content">
                                 <input
                                     id="action"
@@ -110,6 +112,14 @@ const AddNewAction: React.FC<{
                                 <label className="expanded-input-label" htmlFor="action">Action name*</label>
                             </div>
                         </label>
+
+                        {
+                            errors.same_name ? (
+                                <ErrorMessage
+                                    message="This action has already been created"
+                                />
+                            ) : null
+                        }
 
                         {
                             errors.action ? (
@@ -168,12 +178,12 @@ const AddNewAction: React.FC<{
                                     setActionDetails({
                                         ...actionDetails,
                                         restricted: e.target.checked,
-                                        restricted_to: []
+                                        restrictedTo: []
                                     })
 
                                     setErrors({
                                         ...errors,
-                                        restricted_to: false
+                                        restrictedTo: false
                                     })
                                 }}
                                 disabled={saveActionPromise}
@@ -193,46 +203,55 @@ const AddNewAction: React.FC<{
                         {
                             actionDetails.restricted ? (
                                 <React.Fragment>
-                                    <div style={{marginTop: 20}} className={`options-scroll-container ${errors.restricted_to ? 'error' : ''}`}>
+                                    <div style={{marginTop: 20}} className={`options-scroll-container ${errors.restrictedTo ? 'error' : ''}`}>
                                         {
-                                            roles.map(role => {
-                                                return (
-                                                    <div 
-                                                        className={`user-option ${actionDetails.restricted_to.includes(role) ? "selected" : ""}`}
-                                                        onClick={() => {
-                                                            if(actionDetails.restricted_to.includes(role)) {
-                                                                const index = actionDetails.restricted_to.indexOf(role)
-
-                                                                let newArray = [...actionDetails.restricted_to];
-                                                                newArray.splice(index, 1);
-
-                                                                setActionDetails({
-                                                                    ...actionDetails,
-                                                                    restricted_to: newArray
-                                                                })
-                                                            } else {
-                                                                setActionDetails({
-                                                                    ...actionDetails,
-                                                                    restricted_to: [
-                                                                        ...actionDetails.restricted_to,
-                                                                        role
-                                                                    ]
-                                                                })
-
-                                                                setErrors({
-                                                                    ...errors,
-                                                                    restricted_to: false
-                                                                })
-                                                            }
-                                                        }}
-                                                    >{role}</div>
-                                                )
-                                            })
+                                            roles.length === 0 ? (
+                                                <p style={{ padding: 10 }}>No roles could be found</p>
+                                            ) : (
+                                                <React.Fragment>
+                                                    {
+                                                        roles.map(role => {
+                                                            return (
+                                                                <div 
+                                                                    className={`user-option ${actionDetails.restrictedTo.includes(role) ? "selected" : ""}`}
+                                                                    onClick={() => {
+                                                                        if(actionDetails.restrictedTo.includes(role)) {
+                                                                            const index = actionDetails.restrictedTo.indexOf(role)
+            
+                                                                            let newArray = [...actionDetails.restrictedTo];
+                                                                            newArray.splice(index, 1);
+            
+                                                                            setActionDetails({
+                                                                                ...actionDetails,
+                                                                                restrictedTo: newArray
+                                                                            })
+                                                                        } else {
+                                                                            setActionDetails({
+                                                                                ...actionDetails,
+                                                                                restrictedTo: [
+                                                                                    ...actionDetails.restrictedTo,
+                                                                                    role
+                                                                                ]
+                                                                            })
+            
+                                                                            setErrors({
+                                                                                ...errors,
+                                                                                restrictedTo: false
+                                                                            })
+                                                                        }
+                                                                    }}
+                                                                >{role}</div>
+                                                            )
+                                                        })
+                                                    }
+                                                </React.Fragment>
+                                            )
+                                            
                                         }
                                     </div>
 
                                     {
-                                        errors.restricted_to ? (
+                                        errors.restrictedTo ? (
                                             <ErrorMessage
                                                 topSpacing="15px"
                                                 message="Please select at least one role for restriction"
@@ -250,6 +269,24 @@ const AddNewAction: React.FC<{
                             onClick={handleSubmit}
                         >Save action</button>
                     </div>
+
+                    {
+                        saveActionPromise || error ? (
+                            <div className="standard-modal-additional-info">
+                                <InlinePromiseTracker
+                                    searchArea="addAction"
+                                />
+
+                                {
+                                    error ? (
+                                        <ErrorMessage
+                                            message="There was an issue adding this action, please try again"
+                                        />
+                                    ) : null
+                                }
+                            </div>
+                        ) : null
+                    }
                 </div>
             </div>
         </div>

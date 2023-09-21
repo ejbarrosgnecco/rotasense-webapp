@@ -27,7 +27,17 @@
     tr {
         &:nth-child(even) {
             td {
-                background-color: #f586343b
+                background-color: #fde4d5;
+
+                .edit-button,
+                .bin-button,
+                .remove-button {
+                    background-color: #fde4d5;
+
+                    &:hover {
+                        background-color: #fcbe99;
+                    }
+                }
             }
         }
     }

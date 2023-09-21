@@ -2,10 +2,13 @@ import axios from "axios";
 import axiosRetry from "axios-retry";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react"
 import Select from "react-dropdown-select";
+import DatePicker, { DateObject } from "react-multi-date-picker";
 import { trackPromise } from "react-promise-tracker";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ErrorMessage from "../../../../components/error/error";
 import FullScreenPromiseTracker from "../../../../components/promiseTrackers/fullScreenTracker";
+import toastNotification from "../../../../components/toastNotifications/toastNotifications";
+import { ScheduleChange, setSchedule } from "../../../../store/features/schedules/schedule";
 import { RootState } from "../../../../store/store";
 import { SuccessResponse } from "../../../../types.config";
 import { Schedule } from "../../components/scheduleColumn/scheduleColumn"
@@ -21,30 +24,33 @@ axiosRetry(axios, {
 })
 
 interface ScheduleSlot {
-    from: string,
-    to: string,
+    startTime: string,
+    endTime: string,
     action: string
 }
 
 const CreateSchedule: React.FC<{
-    date: string,
     memberDetails: Schedule["member"],
-    teamId: string,
-    closeModal: Dispatch<SetStateAction<boolean>>,
-    timeframe: { from: string, to: string },
-    scheduleId?: string
-}> = ({ date,teamId, memberDetails, closeModal, timeframe, scheduleId }): JSX.Element => {
-    const userDetails = useSelector((state: RootState) => state.userAuthentication)
+    closeModal: Dispatch<SetStateAction<boolean>>
+}> = ({ memberDetails, closeModal }): JSX.Element => {
+    const userDetails = useSelector((state: RootState) => state.userAuthentication);
+    const scheduleDetails = useSelector((state: RootState) => state.schedule);
+
+    const dispatch = useDispatch();
     
-    const fullDate = new Date(`${date}T12:00:00.000`);
+    const fullDate = new Date(`${scheduleDetails.date}T12:00:00.000`);
 
     const [scheduleSelections, setScheduleSelections] = useState<ScheduleSlot[]>([
         {
-            from: "--:--",
-            to: "--:--",
+            startTime: "--:--",
+            endTime: "--:--",
             action: ""
         }
     ])
+
+    const [repeatDates, setRepeatDates] = useState<string[]>([])
+
+    const [showAdditionalSettings, setShowAdditionalSettings] = useState<boolean>(false);
 
     const [availableActions, setAvailableActions] = useState<{ action: string, color: string }[]>([])
     const [timeSelectChoices, setTimeSelectChoices] = useState<{ hours: string[], minutes: string[] }>({
@@ -59,9 +65,11 @@ const CreateSchedule: React.FC<{
             new Promise<void>( async (resolve) => {
                 await axios({
                     method: "GET",
-                    url: process.env.REACT_APP_BACKEND_BASE_URL + `/schedules/${userDetails.team._id}/actions`,
+                    url: process.env.REACT_APP_BACKEND_BASE_URL + `/schedules/${scheduleDetails.team._id}/actions`,
+                    headers: {
+                        Authorization: "Bearer " + userDetails.accessToken
+                    },
                     params: {
-                        orgId: userDetails.organisation._id,
                         role: memberDetails.role
                     }
                 })
@@ -73,26 +81,24 @@ const CreateSchedule: React.FC<{
 
                         resolve()
                     } else {
-                        setErrors({
-                            ...errors,
-                            // Set error
+                        toastNotification({
+                            type: "bad",
+                            text: "There was an issue fetching team actions, please try again"
                         })
 
                         resolve()
                     }
                 })
-                .catch((err) => {
-                    setErrors({
-                        ...errors,
-                        // Set error
+                .catch(() => {
+                    toastNotification({
+                        type: "bad",
+                        text: "There was an issue fetching team actions, please try again"
                     })
-
-                    resolve()
 
                     resolve();
                 })
             })
-        , 'get_actions')
+        , 'getActions')
     }
 
     useEffect(() => {
@@ -101,7 +107,7 @@ const CreateSchedule: React.FC<{
 
         // Get all available hours & minutes options for select dropdowns
         let hours: string[] = []
-        for (let d = new Date(`2023-02-02T${timeframe.from}:00.000`); d <= new Date(`2023-02-02T${timeframe.to}:00.000`); d.setHours(d.getHours() + 1)) {
+        for (let d = new Date(`2023-02-02T${scheduleDetails.timeframe.from}:00.000`); d <= new Date(`2023-02-02T${scheduleDetails.timeframe.to}:00.000`); d.setHours(d.getHours() + 1)) {
             const hour = d.getHours().toString()
             hours.push(`${hour.length === 1 ? 0 : ""}${hour}`)
         }
@@ -164,8 +170,8 @@ const CreateSchedule: React.FC<{
         setScheduleSelections([
             ...scheduleSelections,
             {
-                from: "-",
-                to: "-",
+                startTime: "-",
+                endTime: "-",
                 action: ""
             }
         ])
@@ -181,23 +187,23 @@ const CreateSchedule: React.FC<{
             
             let timesValid: boolean = true;
             
-            if(/^([0-9]{2})+:+([0-9]{2})$/.test(schedule.from) === false) {
+            if(/^([0-9]{2})+:+([0-9]{2})$/.test(schedule.startTime) === false) {
                 errorsCount++;
-                errorsObject[`${i}_from`] = true;
+                errorsObject[`${i}_startTime`] = true;
                 errorsObject.format = true;
                 timesValid = false
             }
 
-            if(/^([0-9]{2})+:+([0-9]{2})$/.test(schedule.to) === false) {
+            if(/^([0-9]{2})+:+([0-9]{2})$/.test(schedule.endTime) === false) {
                 errorsCount++;
-                errorsObject[`${i}_to`] = true;
+                errorsObject[`${i}_endTime`] = true;
                 errorsObject.format = true;
                 timesValid = false
             }
 
             // Check that from < to
             if (timesValid === true) {
-                if(new Date(`2023-02-02T${schedule.from}:00.000`) > new Date(`2023-02-02T${schedule.to}:00.000`)) {
+                if(new Date(`2023-02-02T${schedule.startTime}:00.000`) > new Date(`2023-02-02T${schedule.endTime}:00.000`)) {
                     errorsCount++;
                     errorsObject[`${i}_invalid`] = true;
                     errors.format = true;
@@ -231,8 +237,8 @@ const CreateSchedule: React.FC<{
             let timeslotsFormatted: { time: string, action: string }[] = [];
 
             for (const timeslot of scheduleSelections) {
-                const fromTime = new Date(`2023-02-02T${timeslot.from}:00.000`);
-                const toTime = new Date(`2023-02-02T${timeslot.to}:00.000`);
+                const fromTime = new Date(`2023-02-02T${timeslot.startTime}:00.000`);
+                const toTime = new Date(`2023-02-02T${timeslot.endTime}:00.000`);
 
                 for (let d = fromTime; d < toTime; d.setMinutes(d.getMinutes() + 15)) {
                     // Check if timeslot hasn't been used twice
@@ -258,19 +264,42 @@ const CreateSchedule: React.FC<{
                 new Promise<void>( async (resolve) => {
                     await axios({
                         method: "POST",
-                        url: process.env.REACT_APP_BACKEND_BASE_URL + `/schedules/${teamId}/${memberDetails._id}`,
+                        url: process.env.REACT_APP_BACKEND_BASE_URL + `/schedules/${scheduleDetails.team._id}/${memberDetails._id}`,
+                        headers: {
+                            Authorization: "Bearer " + userDetails.accessToken
+                        },
                         data: {
-                            scheduleId: scheduleId,
-                            orgId: userDetails.organisation._id,
-                            date: date,
-                            schedule: timeslotsFormatted
+                            scheduleId: scheduleDetails._id,
+                            date: scheduleDetails.date,
+                            schedule: scheduleSelections,
+                            repeatDates: repeatDates
                         }
                     })
                     .then((value: { data: SuccessResponse }) => {
                         const response = value.data;
 
                         if(response.success === true) {
-                            window.location.reload();
+                            const editIndex: number = scheduleDetails.schedules.findIndex(i => i.member._id === memberDetails._id);
+                            let objectCopy = {...scheduleDetails.schedules[editIndex]};
+                            
+                            objectCopy.submitted = true
+                            objectCopy.schedule = timeslotsFormatted
+                            
+                            let newArray = [...scheduleDetails.schedules]
+                            newArray[editIndex] = objectCopy
+
+                            let updateObject: ScheduleChange  = {
+                                schedules: newArray
+                            }
+
+                            if(response.data?.scheduleId) {
+                                updateObject["_id"] = response.data.scheduleId;
+                            }
+
+                            dispatch(setSchedule(updateObject))
+
+                            closeModal(false)
+
                             resolve()
                         } else {
                             setErrors({
@@ -290,14 +319,14 @@ const CreateSchedule: React.FC<{
                         resolve();
                     })
                 })
-            , 'submit_schedule')
+            , 'submitSchedule')
         }
     }
 
     return (
         <React.Fragment>
             <FullScreenPromiseTracker
-                searchArea="submit_schedule"
+                searchArea="submitSchedule"
                 message="Please wait..."
             />
             
@@ -337,34 +366,34 @@ const CreateSchedule: React.FC<{
                                                             <div className="time-select-wrapper">
                                                                 {/* Hours */}
                                                                 <Select
-                                                                    className={`standard-select mini ${errors[`${i}_from`] === true ? 'error' : ''}`}
+                                                                    className={`standard-select mini ${errors[`${i}_startTime`] || errors[`${i}_invalid`] ? 'error' : ''}`}
                                                                     style={{ width: 60 }}
                                                                     options={timeSelectChoices.hours.map(hour => {
                                                                         return { value: hour }
                                                                     })}
                                                                     labelField={"value"}
-                                                                    values={[{ value: line.from.split(":")[0] }]}
+                                                                    values={[{ value: line.startTime.split(":")[0] }]}
                                                                     placeholder="-"
                                                                     multi={false}
                                                                     backspaceDelete={false}
                                                                     searchable={false}
-                                                                    onChange={(e) => handleChangeScheduleTimings(e, i, 'from:hour')}
+                                                                    onChange={(e) => handleChangeScheduleTimings(e, i, 'startTime:hour')}
                                                                 />
                                                                 :
                                                                 {/* Minutes */}
                                                                 <Select
-                                                                    className={`standard-select mini ${errors[`${i}_from`] === true ? 'error' : ''}`}
+                                                                    className={`standard-select mini ${errors[`${i}_startTime`] || errors[`${i}_invalid`] ? 'error' : ''}`}
                                                                     style={{ width: 60 }}
                                                                     options={timeSelectChoices.minutes.map(minute => {
                                                                         return { value: minute }
                                                                     })}
                                                                     labelField={"value"}
-                                                                    values={[{ value: line.from.split(":")[1] }]}
+                                                                    values={[{ value: line.startTime.split(":")[1] }]}
                                                                     placeholder="-"
                                                                     multi={false}
                                                                     backspaceDelete={false}
                                                                     searchable={false}
-                                                                    onChange={(e) => handleChangeScheduleTimings(e, i, 'from:minute')}
+                                                                    onChange={(e) => handleChangeScheduleTimings(e, i, 'startTime:minute')}
                                                                 />
                                                             </div>
                                                         </td>
@@ -373,41 +402,41 @@ const CreateSchedule: React.FC<{
                                                             <div className="time-select-wrapper">
                                                                 {/* Hours */}
                                                                 <Select
-                                                                    className={`standard-select mini ${errors[`${i}_to`] === true ? 'error' : ''}`}
+                                                                    className={`standard-select mini ${errors[`${i}_endTime`] || errors[`${i}_invalid`] ? 'error' : ''}`}
                                                                     style={{ width: 60 }}
                                                                     options={timeSelectChoices.hours.map(hour => {
                                                                         return { value: hour }
                                                                     })}
                                                                     labelField={"value"}
-                                                                    values={[{ value: line.to.split(":")[0] }]}
+                                                                    values={[{ value: line.endTime.split(":")[0] }]}
                                                                     placeholder="-"
                                                                     multi={false}
                                                                     backspaceDelete={false}
                                                                     searchable={false}
-                                                                    onChange={(e) => handleChangeScheduleTimings(e, i, 'to:hour')}
+                                                                    onChange={(e) => handleChangeScheduleTimings(e, i, 'endTime:hour')}
                                                                 />
                                                                 :
                                                                 {/* Minutes */}
                                                                 <Select
-                                                                    className={`standard-select mini ${errors[`${i}_to`] === true ? 'error' : ''}`}
+                                                                    className={`standard-select mini ${errors[`${i}_endTime`] || errors[`${i}_invalid`] ? 'error' : ''}`}
                                                                     style={{ width: 60 }}
                                                                     options={timeSelectChoices.minutes.map(minute => {
                                                                         return { value: minute }
                                                                     })}
                                                                     labelField={"value"}
-                                                                    values={[{ value: line.to.split(":")[1] }]}
+                                                                    values={[{ value: line.endTime.split(":")[1] }]}
                                                                     placeholder="-"
                                                                     multi={false}
                                                                     backspaceDelete={false}
                                                                     searchable={false}
-                                                                    onChange={(e) => handleChangeScheduleTimings(e, i, 'to:minute')}
+                                                                    onChange={(e) => handleChangeScheduleTimings(e, i, 'endTime:minute')}
                                                                 />
                                                             </div>
                                                         </td>
 
                                                         <td>
                                                             <Select
-                                                                    className={`standard-select ${errors[`${i}_action`] === true ? 'error' : ''}`}
+                                                                className={`standard-select ${errors[`${i}_action`] ? 'error' : ''}`}
                                                                 style={{ minWidth: 200}}
                                                                 options={availableActions.map(a => {
                                                                     return { value: a.action }
@@ -470,7 +499,7 @@ const CreateSchedule: React.FC<{
                                     />
                                 ) : null
                             }
-                            
+
                             <br/>
                             
                             <center>
@@ -479,6 +508,73 @@ const CreateSchedule: React.FC<{
                                     onClick={handleAddScheduleLine}
                                 >Add new row <i className="fa-solid fa-plus"/></button>
                             </center>
+
+                            <br/>
+
+                            <input 
+                                className="standard-accordion-trigger invisible"
+                                type="checkbox"
+                                id="users"
+                                name="users"
+                                checked={showAdditionalSettings}
+                                onChange={(e) => {
+                                    setShowAdditionalSettings(e.target.checked)
+                                }}
+                            />
+                            <label htmlFor="users" className="standard-accordion-header">Additional settings</label>
+                            <div className="standard-accordion-body">
+                                <h5 style={{ margin: "0 0 10px 0"}}>Repeat schedule</h5>
+
+                                <DatePicker
+                                    multiple={true}
+                                    render={(value, openCalendar) => {
+                                        return (
+                                            <div 
+                                                className={`date-picker-front ${errors.dates ? 'error' : ''}`}
+                                                onClick={openCalendar}
+                                                style={{ justifyContent: "center", minWidth: 160, marginBottom: 10 }}
+                                            >Open calendar</div> 
+                                        )
+                                    }}
+                                    highlightToday={false}
+                                    currentDate={new DateObject().setDate(scheduleDetails.date)}
+                                    value={
+                                        [
+                                            scheduleDetails.date,
+                                            ...repeatDates
+                                        ]
+                                    }
+                                    onChange={(e: DateObject[]) => {
+                                        setRepeatDates(
+                                            e.filter(i => new Date(i.unix * 1000 + 7200000).toISOString().substring(0, 10) !== scheduleDetails.date).map((obj): string => {
+                                                return new Date(obj.unix * 1000 + 7200000).toISOString().substring(0, 10);
+                                            })
+                                        )
+
+                                        setErrors({
+                                            ...errors,
+                                            dates: false,
+                                            error: false
+                                        })
+                                    }}
+                                />
+
+                            {
+                                repeatDates.length === 0 ? (
+                                    <p className="secondary-text">No dates selected yet</p>
+                                ) : (
+                                    <React.Fragment>
+                                        <ul style={{ marginTop: 5 }}>
+                                            {
+                                                repeatDates.map(date => (
+                                                    <li>{new Date(date).toLocaleDateString("en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric"})}</li>
+                                                ))
+                                            }
+                                        </ul>
+                                    </React.Fragment>
+                                )
+                            }
+                            </div>
                         </div>
                         
                         <div className="standard-modal-footer">

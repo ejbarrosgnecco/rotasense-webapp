@@ -64,7 +64,7 @@ const AddNewDepartment: React.FC<{
                         const response = value.data;
 
                         if(response.success === true) {
-                            const newArray: Department[] = [...departmentOptions, { _id: response.data.departmentId, name: newDepartmentName, team_count: 0 }].sort((a, b) => a.name.localeCompare(b.name));
+                            const newArray: Department[] = [...departmentOptions, { _id: response.data.departmentId, name: newDepartmentName, teamCount: 0 }].sort((a, b) => a.name.localeCompare(b.name));
 
                             setDepartmentOptions(newArray);
                             closeModal(false);
@@ -88,11 +88,11 @@ const AddNewDepartment: React.FC<{
                         resolve()
                     })
                 })
-            , 'add_department')
+            , 'addDepartment')
         }
     }
 
-    const addDepartmentPromise = usePromiseTracker({ area: "add_department" }).promiseInProgress;
+    const addDepartmentPromise = usePromiseTracker({ area: "addDepartment" }).promiseInProgress;
 
     return (
         <div className="modal-backdrop show">
